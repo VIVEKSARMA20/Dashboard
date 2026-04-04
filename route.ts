@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const results = await prisma.$transaction(
-      normalized.map((task: any) =>
+      normalized.filter(Boolean).map((task: any) =>
         prisma.projectTask.upsert({
           where: { taskId: task.taskId },
           create: {
