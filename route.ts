@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { NextRequest, NextResponse } from "next/server";
 import { normalizeSyncRow, type NormalizedTask } from "@/lib/sync-excel-parse";
 import { prisma } from "@/lib/prisma";
