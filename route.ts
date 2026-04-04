@@ -38,17 +38,17 @@ export async function POST(req: NextRequest) {
     return badRequest("Expected a JSON array of task objects");
   }
 
-  const normalized: NormalizedTask[] = [];
   const skipped: { index: number; reason: string }[] = [];
 
-  body.forEach((row, index) => {
+  const normalized = body.reduce<NormalizedTask[]>((acc, row, index) => {
     const n = normalizeSyncRow(row);
     if (!n) {
       skipped.push({ index, reason: "Missing Task ID or invalid row" });
-      return;
+      return acc;
     }
-    normalized.push(n);
-  });
+    acc.push(n);
+    return acc;
+  }, []);
 
   if (normalized.length === 0) {
     return NextResponse.json({
@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const results = await prisma.$transaction(
-      normalized.map((task) =>
+      normalized.map((task: NormalizedTask) =>
         prisma.projectTask.upsert({
           where: { taskId: task.taskId },
           create: {
