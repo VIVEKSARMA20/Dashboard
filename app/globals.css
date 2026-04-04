@@ -1,0 +1,30 @@
+:root {
+  --bg: #0f1419;
+  --surface: #1a2332;
+  --text: #e8eaed;
+  --muted: #9aa0a6;
+  --status-completed: #6b9e7d;
+  --status-progress: #5b8fc7;
+  --status-blocked: #c85c5c;
+  --status-notstarted: #8a9199;
+  --priority-high: #c45c3a;
+  --priority-medium: #c9a227;
+  --priority-low: #5b8db8;
+  --border: #2d3a4d;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: ui-sans-serif, system-ui, Segoe UI, Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+a {
+  color: #8ab4f8;
+}

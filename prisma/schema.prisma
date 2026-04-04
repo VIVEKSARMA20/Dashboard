@@ -1,0 +1,22 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// Synced from Excel / external jobs via POST /api/sync-excel
+model ProjectTask {
+  id          String    @id @default(cuid())
+  taskId      String    @unique @map("task_id")
+  description String?   @db.Text
+  status      String?
+  priority    String?
+  dueDate     DateTime? @map("due_date") @db.Timestamptz(6)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@map("project_tasks")
+}
