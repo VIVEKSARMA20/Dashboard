@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Login screen</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+body{font-family:Inter,system-ui,sans-serif;background:#E6E9F0;color:#0B1220;min-height:100vh}
+.bar{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;padding:12px 24px;background:#fff;border-bottom:1px solid #E8EBF1}
+.bar h1{font-size:15px;font-weight:600}
+.hint{font-size:13px;color:#5B6475;flex:1}
+.seg{display:inline-flex;background:#EEF1F6;border-radius:10px;padding:4px;gap:4px}
+.seg button,.btn{border:0;background:transparent;padding:7px 12px;border-radius:7px;font:500 13px Inter,sans-serif;color:#5B6475;cursor:pointer;min-height:34px}
+.seg button[aria-pressed=true]{background:#fff;color:#0B1220;box-shadow:0 1px 3px rgba(16,24,40,.12)}
+.btn{border:1px solid #D5DAE3;background:#fff;color:#0B1220}
+.btn:hover{background:#F7F8FB}
+.stage{display:flex;justify-content:center;padding:24px}
+iframe{display:block;width:100%;max-width:1280px;height:calc(100vh - 110px);min-height:640px;border:0;border-radius:16px;background:#fff;box-shadow:0 30px 60px -30px rgba(15,38,80,.45);transition:max-width .45s cubic-bezier(.2,.8,.2,1)}
+.mobile iframe{max-width:390px;height:800px;border-radius:40px;border:10px solid #0B1220}
+</style>
+</head>
+<body>
+<div class="bar">
+  <h1>Login: final</h1>
+  <p class="hint">MSPIN: digits only (0000 simulates "not found"). OTP: any 4 digits; 0000 shows the error state.</p>
+  <div class="seg" id="view">
+    <button data-v="desktop" aria-pressed="true">Desktop</button>
+    <button data-v="mobile" aria-pressed="false">Mobile</button>
+  </div>
+  <button class="btn" id="replay">Replay</button>
+</div>
+<div class="stage" id="stage"><iframe id="app" title="Login screen preview"></iframe></div>
+<script>
+const app = document.getElementById('app');
+app.src = `app.html?v=${Date.now()}`;
+document.getElementById('view').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  document.querySelectorAll('#view button').forEach(x => x.setAttribute('aria-pressed', x === b));
+  document.getElementById('stage').classList.toggle('mobile', b.dataset.v === 'mobile');
+});
+document.getElementById('replay').addEventListener('click', () => app.contentWindow.location.reload());
+</script>
+</body>
+</html>

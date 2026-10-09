@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Login preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100..900&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js"></script>
+<script>
+// Dev-only loader: transpiles the component's real .jsx/.js files in the browser so no Node toolchain is needed.
+const BASE = '../src/components/LoginCard/';
+const FILES = ['index.js', 'LoginPage.jsx', 'LoginCard.jsx', 'MspinStep.jsx', 'OtpStep.jsx', 'SuccessStep.jsx',
+  'OtpInput.jsx', 'OaapLogo.jsx', 'ui.jsx', 'hooks.js', 'strings.js'];
+
+(async () => {
+  const sources = {};
+  await Promise.all(FILES.map(async f => {
+    const res = await fetch(BASE + f, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`Couldn't load ${f}`);
+    sources[f] = await res.text();
+  }));
+
+  const modules = {};
+  const resolve = spec => {
+    const name = spec.replace(/^\.\//, '');
+    return [name, `${name}.js`, `${name}.jsx`].find(n => n in sources);
+  };
+  function require(spec) {
+    if (spec === 'react') return React;
+    if (spec.endsWith('.css')) {
+      const href = BASE + spec.replace(/^\.\//, '');
+      if (!document.querySelector(`link[href="${href}"]`)) {
+        const link = Object.assign(document.createElement('link'), { rel: 'stylesheet', href });
+        document.head.appendChild(link);
+      }
+      return {};
+    }
+    const file = resolve(spec);
+    if (!file) throw new Error(`Unknown module ${spec}`);
+    if (modules[file]) return modules[file].exports;
+    const module = (modules[file] = { exports: {} });
+    const { code } = Babel.transform(sources[file], {
+      filename: file,
+      presets: [['react', { runtime: 'classic' }]],
+      plugins: ['transform-modules-commonjs']
+    });
+    new Function('require', 'module', 'exports', 'React', code)(require, module, module.exports, React);
+    return module.exports;
+  }
+
+  const { LoginPage } = require('./index.js');
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  const api = {
+    onSendOtp: async mspin => { await wait(700); if (mspin === '0000') throw new Error(); return { maskedPhone: '+91 ••••• •4821' }; },
+    onVerify: async (mspin, code) => { await wait(800); if (code === '0000') throw new Error(); },
+    onResend: async () => { await wait(300); },
+    onComplete: () => window.parent.postMessage('lc-complete', '*')
+  };
+  ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(LoginPage, api));
+})().catch(err => {
+  document.body.innerHTML = `<pre style="color:#D92D20;padding:24px;white-space:pre-wrap">${err.stack || err}</pre>`;
+});
+</script>
+</body>
+</html>
